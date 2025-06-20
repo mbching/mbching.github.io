@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>ô/)#1</title>
+  <style>
+    body {
+      background: #111;
+      color: #eee;
+      font-family: monospace;
+      margin: 2rem;
+    }
+    h1, h2 {
+      text-transform: uppercase;
+      border-bottom: 2px solid #444;
+      padding-bottom: 0.3rem;
+    }
+    h1 {
+      font-size: 2rem;
+    }
+    h2 {
+      margin-top: 2rem;
+      font-size: 1.5rem;
+    }
+    .section {
+      margin-top: 1.5rem;
+    }
+    pre {
+      white-space: pre-wrap;
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+    .day-block {
+      margin-top: 1rem;
+    }
+    .day-title {
+      font-weight: bold;
+      margin-bottom: 0.3rem;
+      color: #ccc;
+    }
+    footer {
+      font-size: 0.8rem;
+      margin-top: 3rem;
+      color: #666;
+    }
+    .psr-bar {
+      font-size: 1rem;
+      color: #00f;
+    }
+  </style>
+</head>
+<body>
+  <h1>ô/)#1</h1>
+
+  <div class="section">
+    <h2> Â)#Ç¡</h2>
+    <pre id="today">	e-...</pre>
+  </div>
+
+  <div class="section">
+    <h2>]))#1</h2>
+    <div id="nineday">	e-...</div>
+  </div>
+
+  <footer>«ôÜêdata.weather.gov.hk</footer>
+
+  <script>
+    // Fetch today's forecast
+    fetch("https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=tc")
+      .then(res => res.json())
+      .then(data => {
+        const content = `${data.updateTime}\n\n${data.generalSituation}\n\n${data.forecastDesc}\n\n${data.outlook}`;
+        document.getElementById("today").textContent = content;
+      })
+      .catch(() => {
+        document.getElementById("today").textContent = "!’	e Â)#«ô";
+      });
+
+    // Function to generate PSR bar based on the values: ÿ, -, N
+    function generatePSRBar(psr) {
+      if (psr === "ÿ") return "à à à à à à à à à à";  // Full bar (High)
+      if (psr === "-") return "Ñ Ñ Ñ Ñ Ñ Ñ Ñ Ñ Ñ Ñ";  // Medium bar (Medium)
+      if (psr === "N") return "Å Å Å Å Å Å Å Å Å Å";  // Low bar (Low)
+      return "«ô:1";  // Missing data
+    }
+
+    // Fetch 9-day forecast
+    fetch("https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc")
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById("nineday");
+        container.innerHTML = "";
+        data.weatherForecast.forEach(day => {
+          const psr = day.PSR ? generatePSRBar(day.PSR) : "«ô:1";
+
+          const block = document.createElement("div");
+          block.className = "day-block";
+          block.innerHTML = `
+            <div class="day-title">${day.forecastDate}${day.week}	</div>
+            <pre>
+)#${day.forecastWeather}
+´¶${day.forecastMintemp.value}∞C ~ ${day.forecastMaxtemp.value}∞C
+’¶${day.forecastMinrh.value}% ~ ${day.forecastMaxrh.value}%
+®‚${day.forecastWind}
+MË_${psr}
+            </pre>
+          `;
+          container.appendChild(block);
+        });
+      })
+      .catch(() => {
+        document.getElementById("nineday").textContent = "!’	e]))#«ô";
+      });
+  </script>
+</body>
+</html>
