@@ -2,14 +2,14 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>)#��1</title>
+  <title>天氣與巴士預報</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
       --bg: #121212;
       --card: #1e1e1e;
       --text: #f0f0f0;
-      --accent: #959595;
+      --accent: #4fc3f7;
       --highlight: #1976d2;
     }
 
@@ -95,29 +95,29 @@
 <body>
 
   <div class="top-bar">
-    <button class="toggle-btn" onclick="toggleTheme()">< �;L</button>
+    <button class="toggle-btn" onclick="toggleTheme()">🌓 切換主題</button>
   </div>
 
   <div class="container">
     <div class="column">
-      <h2><$ ]))#1</h2>
-      <ul id="weather-forecast"><li>	e-...</li></ul>
+      <h2>🌤 九天天氣預報</h2>
+      <ul id="weather-forecast"><li>載入中...</li></ul>
     </div>
 
     <div class="column">
-      <h2>=� Citybus Route 5X</h2>
-      <ul id="eta-5x"><li>Loading...</li></ul>    
-
-      <h2>=� Route 102 (KMB + CTB)</h2>
+      <h2>🚌 Route 102 (KMB + CTB)</h2>
       <ul id="eta-102"><li>Loading...</li></ul>
 
-      <h2>=� Route 106 (KMB + CTB)</h2>
+      <h2>🚌 Citybus Route 5X</h2>
+      <ul id="eta-5x"><li>Loading...</li></ul>
+
+      <h2>🚌 Route 106 (KMB + CTB)</h2>
       <ul id="eta-106"><li>Loading...</li></ul>
 
-      <h2>=� Route 103 (KMB + CTB)</h2>
+      <h2>🚌 Route 103 (KMB + CTB)</h2>
       <ul id="eta-103"><li>Loading...</li></ul>
 
-      <h2>=� Route 170 (KMB + CTB)</h2>
+      <h2>🚌 Route 170 (KMB + CTB)</h2>
       <ul id="eta-170"><li>Loading...</li></ul>
     </div>
   </div>
@@ -139,13 +139,14 @@ async function loadWeather() {
 
     forecast.forEach(day => {
       const li = document.createElement("li");
-      li.textContent = `${day.forecastDate.slice(4,6)}${day.forecastDate.slice(6)}� - ${day.forecastWeather} <! ${day.forecastMintemp.value}�C - ${day.forecastMaxtemp.value}�C =�${day.forecastMinrh.value}%${day.forecastMaxrh.value}% <' M�_${day.PSR}`;
+      li.textContent = `${day.forecastDate.slice(4,6)}月${day.forecastDate.slice(6)}日 - ${day.forecastWeather} 🌡️ ${day.forecastMintemp.value}°C - ${day.forecastMaxtemp.value}°C 💧${day.forecastMinrh.value}%–${day.forecastMaxrh.value}% 🌧️ 降雨機會：${day.PSR}`;
       list.appendChild(li);
     });
   } catch (e) {
-    document.getElementById("weather-forecast").innerHTML = "<li>)#Ǚ	e1W</li>";
+    document.getElementById("weather-forecast").innerHTML = "<li>天氣資料載入失敗。</li>";
   }
 }
+
 
     async function loadKMB102() {
       try {
@@ -184,7 +185,7 @@ async function loadWeather() {
         }
         buses.forEach(bus => {
           const li = document.createElement("li");
-          li.textContent = `ETA: ${formatTime(bus.eta)} � ${bus.dest_en || ''}`;
+          li.textContent = `ETA: ${formatTime(bus.eta)} → ${bus.dest_en || ''}`;
           list.appendChild(li);
         });
       } catch {
@@ -204,7 +205,7 @@ async function loadWeather() {
       }
       allData.forEach(bus => {
         const li = document.createElement("li");
-        li.textContent = `[${bus.company}] ETA: ${formatTime(bus.eta)} � ${bus.dest}`;
+        li.textContent = `[${bus.company}] ETA: ${formatTime(bus.eta)} → ${bus.dest}`;
         list.appendChild(li);
       });
     }
@@ -237,7 +238,7 @@ async function loadWeather() {
 
         allData.forEach(bus => {
           const li = document.createElement("li");
-          li.textContent = `[${bus.company}] ETA: ${formatTime(bus.eta)} � ${bus.dest}`;
+          li.textContent = `[${bus.company}] ETA: ${formatTime(bus.eta)} → ${bus.dest}`;
           list.appendChild(li);
         });
 
