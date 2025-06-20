@@ -2,115 +2,274 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>香港天氣預報</title>
+  <title>)#��1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    :root {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --text: #f0f0f0;
+      --accent: #959595;
+      --highlight: #1976d2;
+    }
+
+    body.light {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --text: #000000;
+      --accent: #1976d2;
+      --highlight: #0d47a1;
+    }
+
     body {
-      background: #111;
-      color: #eee;
-      font-family: monospace;
-      margin: 2rem;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
     }
-    h1, h2 {
-      text-transform: uppercase;
-      border-bottom: 2px solid #444;
-      padding-bottom: 0.3rem;
+
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px 20px;
+      background: var(--card);
     }
-    h1 {
-      font-size: 2rem;
+
+    .toggle-btn {
+      background: var(--accent);
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
     }
+
+    .toggle-btn:hover {
+      background: var(--highlight);
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .column {
+      flex: 1 1 300px;
+      background: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
     h2 {
-      margin-top: 2rem;
-      font-size: 1.5rem;
+      color: var(--accent);
+      margin-top: 0;
     }
-    .section {
-      margin-top: 1.5rem;
+
+    ul {
+      list-style: none;
+      padding: 0;
     }
-    pre {
-      white-space: pre-wrap;
-      line-height: 1.6;
-      font-size: 1rem;
+
+    li {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 6px;
     }
-    .day-block {
-      margin-top: 1rem;
-    }
-    .day-title {
-      font-weight: bold;
-      margin-bottom: 0.3rem;
-      color: #ccc;
-    }
-    footer {
-      font-size: 0.8rem;
-      margin-top: 3rem;
-      color: #666;
-    }
-    .psr-bar {
-      font-size: 1rem;
-      color: #00f;
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>香港天氣預報</h1>
 
-  <div class="section">
-    <h2>今日天氣概況</h2>
-    <pre id="today">載入中...</pre>
+  <div class="top-bar">
+    <button class="toggle-btn" onclick="toggleTheme()">< �;L</button>
   </div>
 
-  <div class="section">
-    <h2>九天天氣預報</h2>
-    <div id="nineday">載入中...</div>
-  </div>
+  <div class="container">
+    <div class="column">
+      <h2><$ ]))#1</h2>
+      <ul id="weather-forecast"><li>	e-...</li></ul>
+    </div>
 
-  <footer>資料來源：data.weather.gov.hk</footer>
+    <div class="column">
+      <h2>=� Citybus Route 5X</h2>
+      <ul id="eta-5x"><li>Loading...</li></ul>    
+
+      <h2>=� Route 102 (KMB + CTB)</h2>
+      <ul id="eta-102"><li>Loading...</li></ul>
+
+      <h2>=� Route 106 (KMB + CTB)</h2>
+      <ul id="eta-106"><li>Loading...</li></ul>
+
+      <h2>=� Route 103 (KMB + CTB)</h2>
+      <ul id="eta-103"><li>Loading...</li></ul>
+
+      <h2>=� Route 170 (KMB + CTB)</h2>
+      <ul id="eta-170"><li>Loading...</li></ul>
+    </div>
+  </div>
 
   <script>
-    // Fetch today's forecast
-    fetch("https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=flw&lang=tc")
-      .then(res => res.json())
-      .then(data => {
-        const content = `${data.updateTime}\n\n${data.generalSituation}\n\n${data.forecastDesc}\n\n${data.outlook}`;
-        document.getElementById("today").textContent = content;
-      })
-      .catch(() => {
-        document.getElementById("today").textContent = "無法載入今日天氣資料。";
-      });
-
-    // Function to generate PSR bar based on the values: 高, 中, 低
-    function generatePSRBar(psr) {
-      if (psr === "高") return "█ █ █ █ █ █ █ █ █ █";  // Full bar (High)
-      if (psr === "中") return "▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄";  // Medium bar (Medium)
-      if (psr === "低") return "▁ ▁ ▁ ▁ ▁ ▁ ▁ ▁ ▁ ▁";  // Low bar (Low)
-      return "資料缺失";  // Missing data
+    function formatTime(iso) {
+      if (!iso) return "No ETA";
+      const date = new Date(iso);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
-    // Fetch 9-day forecast
-    fetch("https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc")
-      .then(res => res.json())
-      .then(data => {
-        const container = document.getElementById("nineday");
-        container.innerHTML = "";
-        data.weatherForecast.forEach(day => {
-          const psr = day.PSR ? generatePSRBar(day.PSR) : "資料缺失";
+async function loadWeather() {
+  try {
+    const res = await fetch("https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc");
+    const data = await res.json();
+    const forecast = data.weatherForecast;
+    const list = document.getElementById("weather-forecast");
+    list.innerHTML = "";
 
-          const block = document.createElement("div");
-          block.className = "day-block";
-          block.innerHTML = `
-            <div class="day-title">${day.forecastDate}（${day.week}）</div>
-            <pre>
-天氣：${day.forecastWeather}
-溫度：${day.forecastMintemp.value}°C ~ ${day.forecastMaxtemp.value}°C
-濕度：${day.forecastMinrh.value}% ~ ${day.forecastMaxrh.value}%
-風勢：${day.forecastWind}
-降雨機會：${psr}
-            </pre>
-          `;
-          container.appendChild(block);
+    forecast.forEach(day => {
+      const li = document.createElement("li");
+      li.textContent = `${day.forecastDate.slice(4,6)}${day.forecastDate.slice(6)}� - ${day.forecastWeather} <! ${day.forecastMintemp.value}�C - ${day.forecastMaxtemp.value}�C =�${day.forecastMinrh.value}%${day.forecastMaxrh.value}% <' M�_${day.PSR}`;
+      list.appendChild(li);
+    });
+  } catch (e) {
+    document.getElementById("weather-forecast").innerHTML = "<li>)#Ǚ	e1W</li>";
+  }
+}
+
+    async function loadKMB102() {
+      try {
+        const res = await fetch("https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/13C75FFFA2BB060D");
+        const json = await res.json();
+        return json.data.filter(item => item.route === "102" && item.eta).map(item => ({
+          eta: item.eta, dest: item.dest_en, company: "KMB"
+        }));
+      } catch {
+        return [];
+      }
+    }
+
+    async function loadCTB102() {
+      try {
+        const res = await fetch("https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/001251/102");
+        const json = await res.json();
+        return json.data.filter(item => item.route === "102" && item.eta).map(item => ({
+          eta: item.eta, dest: item.dest_en, company: "CTB"
+        }));
+      } catch {
+        return [];
+      }
+    }
+
+    async function loadCTB5X() {
+      try {
+        const res = await fetch("https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/001342/5X");
+        const json = await res.json();
+        const list = document.getElementById('eta-5x');
+        list.innerHTML = '';
+        const buses = json.data.filter(item => item.route === "5X" && item.eta);
+        if (buses.length === 0) {
+          list.innerHTML = "<li>No data available for route 5X.</li>";
+          return;
+        }
+        buses.forEach(bus => {
+          const li = document.createElement("li");
+          li.textContent = `ETA: ${formatTime(bus.eta)} � ${bus.dest_en || ''}`;
+          list.appendChild(li);
         });
-      })
-      .catch(() => {
-        document.getElementById("nineday").textContent = "無法載入九天天氣資料。";
+      } catch {
+        document.getElementById('eta-5x').innerHTML = "<li>Error loading 5X ETA.</li>";
+      }
+    }
+
+    async function loadRoute102Combined() {
+      const list = document.getElementById('eta-102');
+      list.innerHTML = "<li>Loading...</li>";
+      const [kmbData, ctbData] = await Promise.all([loadKMB102(), loadCTB102()]);
+      const allData = [...kmbData, ...ctbData].sort((a, b) => new Date(a.eta) - new Date(b.eta));
+      list.innerHTML = '';
+      if (allData.length === 0) {
+        list.innerHTML = "<li>No ETA available for Route 102.</li>";
+        return;
+      }
+      allData.forEach(bus => {
+        const li = document.createElement("li");
+        li.textContent = `[${bus.company}] ETA: ${formatTime(bus.eta)} � ${bus.dest}`;
+        list.appendChild(li);
       });
+    }
+
+    async function loadCombinedRoute(route, kmbStopId, ctbStopId, containerId) {
+      const list = document.getElementById(containerId);
+      list.innerHTML = "<li>Loading...</li>";
+
+      try {
+        const [kmbRes, ctbRes] = await Promise.all([
+          fetch(`https://data.etabus.gov.hk/v1/transport/kmb/eta/${kmbStopId}/${route}/1`).then(res => res.json()),
+          fetch(`https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/${ctbStopId}/${route}`).then(res => res.json())
+        ]);
+
+        const kmbData = (kmbRes.data || []).filter(i => i.eta).map(i => ({
+          eta: i.eta, dest: i.dest_en, company: "KMB"
+        }));
+
+        const ctbData = (ctbRes.data || []).filter(i => i.eta).map(i => ({
+          eta: i.eta, dest: i.dest_en, company: "CTB"
+        }));
+
+        const allData = [...kmbData, ...ctbData].sort((a, b) => new Date(a.eta) - new Date(b.eta));
+        list.innerHTML = '';
+
+        if (allData.length === 0) {
+          list.innerHTML = `<li>No ETA available for Route ${route}.</li>`;
+          return;
+        }
+
+        allData.forEach(bus => {
+          const li = document.createElement("li");
+          li.textContent = `[${bus.company}] ETA: ${formatTime(bus.eta)} � ${bus.dest}`;
+          list.appendChild(li);
+        });
+
+      } catch {
+        list.innerHTML = `<li>Error loading ETA for Route ${route}.</li>`;
+      }
+    }
+
+    function refreshAll() {
+      loadWeather();
+      loadRoute102Combined();
+      loadCTB5X();
+      loadCombinedRoute("106", "31EA5920FFF0DBBF", "001251", "eta-106");
+      loadCombinedRoute("103", "13C75FFFA2BB060D", "001251", "eta-103");
+      loadCombinedRoute("170", "13C75FFFA2BB060D", "001251", "eta-170");
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("light");
+      localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
+    }
+
+    (function() {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "light") {
+        document.body.classList.add("light");
+      }
+    })();
+
+    refreshAll();
+    setInterval(refreshAll, 60000);
   </script>
+
 </body>
 </html>
