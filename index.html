@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>�/)#1</title>
+  <title>香港天氣預報</title>
   <style>
     body {
       background: #111;
@@ -50,19 +50,19 @@
   </style>
 </head>
 <body>
-  <h1>�/)#1</h1>
+  <h1>香港天氣預報</h1>
 
   <div class="section">
-    <h2>��)#��</h2>
-    <pre id="today">	e-...</pre>
+    <h2>今日天氣概況</h2>
+    <pre id="today">載入中...</pre>
   </div>
 
   <div class="section">
-    <h2>]))#1</h2>
-    <div id="nineday">	e-...</div>
+    <h2>九天天氣預報</h2>
+    <div id="nineday">載入中...</div>
   </div>
 
-  <footer>Ǚ��data.weather.gov.hk</footer>
+  <footer>資料來源：data.weather.gov.hk</footer>
 
   <script>
     // Fetch today's forecast
@@ -73,15 +73,15 @@
         document.getElementById("today").textContent = content;
       })
       .catch(() => {
-        document.getElementById("today").textContent = "!�	e��)#Ǚ";
+        document.getElementById("today").textContent = "無法載入今日天氣資料。";
       });
 
-    // Function to generate PSR bar based on the values: �, -, N
+    // Function to generate PSR bar based on the values: 高, 中, 低
     function generatePSRBar(psr) {
-      if (psr === "�") return "� � � � � � � � � �";  // Full bar (High)
-      if (psr === "-") return "� � � � � � � � � �";  // Medium bar (Medium)
-      if (psr === "N") return "� � � � � � � � � �";  // Low bar (Low)
-      return "Ǚ:1";  // Missing data
+      if (psr === "高") return "█ █ █ █ █ █ █ █ █ █";  // Full bar (High)
+      if (psr === "中") return "▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄ ▄";  // Medium bar (Medium)
+      if (psr === "低") return "▁ ▁ ▁ ▁ ▁ ▁ ▁ ▁ ▁ ▁";  // Low bar (Low)
+      return "資料缺失";  // Missing data
     }
 
     // Fetch 9-day forecast
@@ -91,25 +91,25 @@
         const container = document.getElementById("nineday");
         container.innerHTML = "";
         data.weatherForecast.forEach(day => {
-          const psr = day.PSR ? generatePSRBar(day.PSR) : "Ǚ:1";
+          const psr = day.PSR ? generatePSRBar(day.PSR) : "資料缺失";
 
           const block = document.createElement("div");
           block.className = "day-block";
           block.innerHTML = `
-            <div class="day-title">${day.forecastDate}${day.week}	</div>
+            <div class="day-title">${day.forecastDate}（${day.week}）</div>
             <pre>
-)#${day.forecastWeather}
-��${day.forecastMintemp.value}�C ~ ${day.forecastMaxtemp.value}�C
-զ${day.forecastMinrh.value}% ~ ${day.forecastMaxrh.value}%
-��${day.forecastWind}
-M�_${psr}
+天氣：${day.forecastWeather}
+溫度：${day.forecastMintemp.value}°C ~ ${day.forecastMaxtemp.value}°C
+濕度：${day.forecastMinrh.value}% ~ ${day.forecastMaxrh.value}%
+風勢：${day.forecastWind}
+降雨機會：${psr}
             </pre>
           `;
           container.appendChild(block);
         });
       })
       .catch(() => {
-        document.getElementById("nineday").textContent = "!�	e]))#Ǚ";
+        document.getElementById("nineday").textContent = "無法載入九天天氣資料。";
       });
   </script>
 </body>
