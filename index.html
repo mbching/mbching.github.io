@@ -2,74 +2,39 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
-  <title>天氣與巴士預報</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>天氣與巴士到站資訊</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #121212;
-      --card: #1e1e1e;
-      --text: #f0f0f0;
-      --accent: #4fc3f7;
-      --highlight: #1976d2;
-    }
-
-    body.light {
-      --bg: #f5f5f5;
-      --card: #ffffff;
-      --text: #000000;
-      --accent: #1976d2;
-      --highlight: #0d47a1;
+      --bg-light: #f0f0f0;
+      --bg-dark: #121212;
+      --text-light: #333;
+      --text-dark: #ddd;
+      --title-grey: #777;
     }
 
     body {
-      font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-light);
       margin: 0;
-      padding: 0;
-      background: var(--bg);
-      color: var(--text);
-      transition: background 0.3s, color 0.3s;
-    }
-
-    .top-bar {
-      display: flex;
-      justify-content: flex-end;
-      padding: 10px 20px;
-      background: var(--card);
-    }
-
-    .toggle-btn {
-      background: var(--accent);
-      border: none;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.3s;
-    }
-
-    .toggle-btn:hover {
-      background: var(--highlight);
-    }
-
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
       padding: 20px;
+      transition: all 0.3s ease;
     }
 
-    .column {
-      flex: 1 1 300px;
-      background: var(--card);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    body.dark {
+      background-color: var(--bg-dark);
+      color: var(--text-dark);
     }
 
     h2 {
-      color: var(--accent);
-      margin-top: 0;
+      color: var(--title-grey);
+      margin-top: 20px;
+    }
+
+    .section {
+      margin-bottom: 40px;
     }
 
     ul {
@@ -78,198 +43,155 @@
     }
 
     li {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text);
+      background: white;
       padding: 10px;
-      margin-bottom: 8px;
-      border-radius: 6px;
+      margin-bottom: 5px;
+      border-radius: 5px;
+      font-family: monospace;
     }
 
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
+    body.dark li {
+      background: #1e1e1e;
+    }
+
+    .toggle-btn {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 6px 12px;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      z-index: 999;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .weather-column, .bus-column {
+      flex: 1 1 300px;
     }
   </style>
 </head>
-<body>
+<body class="dark">
 
-  <div class="top-bar">
-    <button class="toggle-btn" onclick="toggleTheme()">🌓 切換主題</button>
-  </div>
+  <button class="toggle-btn" onclick="toggleTheme()">🌗 切換主題</button>
 
   <div class="container">
-    <div class="column">
-      <h2>🌤 九天天氣預報</h2>
+    <div class="weather-column section">
+      <h2>🌦️ 九天天氣預報</h2>
       <ul id="weather-forecast"><li>載入中...</li></ul>
     </div>
 
-    <div class="column">
-      <h2>🚌 Route 102 (KMB + CTB)</h2>
-      <ul id="eta-102"><li>Loading...</li></ul>
+    <div class="bus-column section">
+      <h2>🚌 城巴 5X</h2>
+      <ul id="eta-5x"><li>載入中...</li></ul>
 
-      <h2>🚌 Citybus Route 5X</h2>
-      <ul id="eta-5x"><li>Loading...</li></ul>
+      <h2>🚌 路線 102（九巴 + 城巴）</h2>
+      <ul id="eta-102"><li>載入中...</li></ul>
 
-      <h2>🚌 Route 106 (KMB + CTB)</h2>
-      <ul id="eta-106"><li>Loading...</li></ul>
+      <h2>🚌 路線 106（九巴 + 城巴）</h2>
+      <ul id="eta-106"><li>載入中...</li></ul>
 
-      <h2>🚌 Route 103 (KMB + CTB)</h2>
-      <ul id="eta-103"><li>Loading...</li></ul>
+      <h2>🚌 路線 103（九巴 + 城巴）</h2>
+      <ul id="eta-103"><li>載入中...</li></ul>
 
-      <h2>🚌 Route 170 (KMB + CTB)</h2>
-      <ul id="eta-170"><li>Loading...</li></ul>
+      <h2>🚌 路線 170（九巴 + 城巴）</h2>
+      <ul id="eta-170"><li>載入中...</li></ul>
     </div>
   </div>
 
   <script>
-    function formatTime(iso) {
-      if (!iso) return "No ETA";
-      const date = new Date(iso);
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const formatTime = iso => iso ? new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "無資料";
+
+    const busConfigs = [
+      { id: '5x', ctb: '001342' },
+      { id: '102', kmb: '13C75FFFA2BB060D', ctb: '001251' },
+      { id: '106', kmb: '31EA5920FFF0DBBF', ctb: '001251' },
+      { id: '103', kmb: '13C75FFFA2BB060D', ctb: '001251' },
+      { id: '170', kmb: '13C75FFFA2BB060D', ctb: '001251' }
+    ];
+
+    async function fetchCTB(stopId, route) {
+      const res = await fetch(`https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/${stopId}/${route}`);
+      const json = await res.json();
+      return json.data.filter(b => b.eta).map(b => ({ eta: b.eta, dest: b.dest_tc, company: '城巴' }));
     }
 
-async function loadWeather() {
-  try {
-    const res = await fetch("https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc");
-    const data = await res.json();
-    const forecast = data.weatherForecast;
-    const list = document.getElementById("weather-forecast");
-    list.innerHTML = "";
-
-    forecast.forEach(day => {
-      const li = document.createElement("li");
-      li.textContent = `${day.forecastDate.slice(4,6)}月${day.forecastDate.slice(6)}日 - ${day.forecastWeather} 🌡️ ${day.forecastMintemp.value}°C - ${day.forecastMaxtemp.value}°C 💧${day.forecastMinrh.value}%–${day.forecastMaxrh.value}% 🌧️ 降雨機會：${day.PSR}`;
-      list.appendChild(li);
-    });
-  } catch (e) {
-    document.getElementById("weather-forecast").innerHTML = "<li>天氣資料載入失敗。</li>";
-  }
-}
-
-
-    async function loadKMB102() {
-      try {
-        const res = await fetch("https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/13C75FFFA2BB060D");
-        const json = await res.json();
-        return json.data.filter(item => item.route === "102" && item.eta).map(item => ({
-          eta: item.eta, dest: item.dest_en, company: "KMB"
-        }));
-      } catch {
-        return [];
-      }
+    async function fetchKMB(stopId, route) {
+      const res = await fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${stopId}`);
+      const json = await res.json();
+      return json.data.filter(b => b.route === route && b.eta).map(b => ({ eta: b.eta, dest: b.dest_tc, company: '九巴' }));
     }
 
-    async function loadCTB102() {
-      try {
-        const res = await fetch("https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/001251/102");
-        const json = await res.json();
-        return json.data.filter(item => item.route === "102" && item.eta).map(item => ({
-          eta: item.eta, dest: item.dest_en, company: "CTB"
-        }));
-      } catch {
-        return [];
-      }
-    }
+    async function loadBusETAs() {
+      for (const cfg of busConfigs) {
+        const list = document.getElementById(`eta-${cfg.id}`);
+        list.innerHTML = '<li>載入中...</li>';
 
-    async function loadCTB5X() {
-      try {
-        const res = await fetch("https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/001342/5X");
-        const json = await res.json();
-        const list = document.getElementById('eta-5x');
-        list.innerHTML = '';
-        const buses = json.data.filter(item => item.route === "5X" && item.eta);
-        if (buses.length === 0) {
-          list.innerHTML = "<li>No data available for route 5X.</li>";
-          return;
+        let etas = [];
+        if (cfg.id === '5x') {
+          etas = await fetchCTB(cfg.ctb, '5X');
+        } else {
+          const [kmbData, ctbData] = await Promise.all([
+            fetchKMB(cfg.kmb, cfg.id),
+            fetchCTB(cfg.ctb, cfg.id)
+          ]);
+          etas = [...kmbData, ...ctbData].sort((a, b) => new Date(a.eta) - new Date(b.eta));
         }
-        buses.forEach(bus => {
+
+        list.innerHTML = '';
+        if (!etas.length) {
+          list.innerHTML = '<li>沒有到站資料</li>';
+        } else {
+          etas.forEach(bus => {
+            const li = document.createElement('li');
+            li.textContent = `[${bus.company}] ${formatTime(bus.eta)} → ${bus.dest}`;
+            list.appendChild(li);
+          });
+        }
+      }
+    }
+
+    async function loadWeather() {
+      try {
+        const res = await fetch("https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=tc");
+        const data = await res.json();
+        const list = document.getElementById("weather-forecast");
+        list.innerHTML = "";
+
+        data.weatherForecast.forEach(day => {
+          const date = `${day.forecastDate.slice(4, 6)}月${day.forecastDate.slice(6)}日`;
+          const weather = day.forecastWeather;
+          const temp = `🌡️ ${day.forecastMintemp.value}°-${day.forecastMaxtemp.value}°C`;
+          const rh = `💧 ${day.forecastMinrh.value}-${day.forecastMaxrh.value}%`;
+          const rain = `🌧️ 落雨機會: ${day.PSR}%`;
+
           const li = document.createElement("li");
-          li.textContent = `ETA: ${formatTime(bus.eta)} → ${bus.dest_en || ''}`;
+          li.innerHTML = `📅 ${date}<br>${weather}<br>${temp}<br>${rh}<br>${rain}`;
           list.appendChild(li);
         });
       } catch {
-        document.getElementById('eta-5x').innerHTML = "<li>Error loading 5X ETA.</li>";
+        document.getElementById("weather-forecast").innerHTML = "<li>載入失敗</li>";
       }
-    }
-
-    async function loadRoute102Combined() {
-      const list = document.getElementById('eta-102');
-      list.innerHTML = "<li>Loading...</li>";
-      const [kmbData, ctbData] = await Promise.all([loadKMB102(), loadCTB102()]);
-      const allData = [...kmbData, ...ctbData].sort((a, b) => new Date(a.eta) - new Date(b.eta));
-      list.innerHTML = '';
-      if (allData.length === 0) {
-        list.innerHTML = "<li>No ETA available for Route 102.</li>";
-        return;
-      }
-      allData.forEach(bus => {
-        const li = document.createElement("li");
-        li.textContent = `[${bus.company}] ETA: ${formatTime(bus.eta)} → ${bus.dest}`;
-        list.appendChild(li);
-      });
-    }
-
-    async function loadCombinedRoute(route, kmbStopId, ctbStopId, containerId) {
-      const list = document.getElementById(containerId);
-      list.innerHTML = "<li>Loading...</li>";
-
-      try {
-        const [kmbRes, ctbRes] = await Promise.all([
-          fetch(`https://data.etabus.gov.hk/v1/transport/kmb/eta/${kmbStopId}/${route}/1`).then(res => res.json()),
-          fetch(`https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/${ctbStopId}/${route}`).then(res => res.json())
-        ]);
-
-        const kmbData = (kmbRes.data || []).filter(i => i.eta).map(i => ({
-          eta: i.eta, dest: i.dest_en, company: "KMB"
-        }));
-
-        const ctbData = (ctbRes.data || []).filter(i => i.eta).map(i => ({
-          eta: i.eta, dest: i.dest_en, company: "CTB"
-        }));
-
-        const allData = [...kmbData, ...ctbData].sort((a, b) => new Date(a.eta) - new Date(b.eta));
-        list.innerHTML = '';
-
-        if (allData.length === 0) {
-          list.innerHTML = `<li>No ETA available for Route ${route}.</li>`;
-          return;
-        }
-
-        allData.forEach(bus => {
-          const li = document.createElement("li");
-          li.textContent = `[${bus.company}] ETA: ${formatTime(bus.eta)} → ${bus.dest}`;
-          list.appendChild(li);
-        });
-
-      } catch {
-        list.innerHTML = `<li>Error loading ETA for Route ${route}.</li>`;
-      }
-    }
-
-    function refreshAll() {
-      loadWeather();
-      loadRoute102Combined();
-      loadCTB5X();
-      loadCombinedRoute("106", "31EA5920FFF0DBBF", "001251", "eta-106");
-      loadCombinedRoute("103", "13C75FFFA2BB060D", "001251", "eta-103");
-      loadCombinedRoute("170", "13C75FFFA2BB060D", "001251", "eta-170");
     }
 
     function toggleTheme() {
-      document.body.classList.toggle("light");
-      localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
+      document.body.classList.toggle("dark");
     }
 
-    (function() {
-      const savedTheme = localStorage.getItem("theme");
-      if (savedTheme === "light") {
-        document.body.classList.add("light");
-      }
-    })();
-
-    refreshAll();
-    setInterval(refreshAll, 60000);
+    loadWeather();
+    loadBusETAs();
+    setInterval(() => {
+      loadWeather();
+      loadBusETAs();
+    }, 60000);
   </script>
 
 </body>
